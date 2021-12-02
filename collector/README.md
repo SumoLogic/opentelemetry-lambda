@@ -5,7 +5,7 @@ The OpenTelemetry Collector Lambda Extension provides a mechanism to export tele
 
 ## Build your OpenTelemetry Collector Lambda layer from scratch
 At the moment users have to build Collector Lambda layer by themselves, we will provide sharing Lambda layer in the future.
-- Download a local copy of the [opentelemetry-lambda repository from Github](https://github.com/open-telemetry/opentelemetry-lambda).
+- Download a local copy of the Sumo Logic [opentelemetry-lambda repository from Github](https://github.com/SumoLogic/opentelemetry-lambda).
 - Run command: `cd collector && make publish-layer` to publish OpenTelemetry Collector Lambda layer in your AWS account and get its ARN
 
 Be sure to:
@@ -33,7 +33,7 @@ Alternatively, to configure the OpenTelemetry Lambda Extension via CloudFormatio
 
 ## Configuration
 
-By default, OpenTelemetry Collector Lambda layer exports telemetry data to AWS backends. To customize the collector configuration, add a `collector.yaml` to your function and specifiy its location via the `OPENTELEMETRY_COLLECTOR_CONFIG_FILE` environment file.
+By default, OpenTelemetry Collector Lambda layer exports telemetry data to [Sumo Logic HTTP Traces Source](https://help.sumologic.com/Traces/HTTP_Traces_Source). 
 
 Here is a sample configuration file:
 
@@ -42,24 +42,23 @@ receivers:
   otlp:
     protocols:
       grpc:
+      http:
 
 exporters:
-  logging:
-    loglevel: debug
-  otlp:
-    endpoint: { backend endpoint }
+  otlphttp:
+    traces_endpoint: $SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [logging, otlp]
+      exporters: [otlphttp]
 ```
 
-Once the file has been deployed with a Lambda, configuring the `OPENTELEMETRY_COLLECTOR_CONFIG_FILE` will tell the OpenTelemetry extension where to find the collector configuration:
+Once the file has been deployed with a Lambda, configuring the `SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL` environment variable will tell the OpenTelemetry extension where to export traces:
 
 ```
-aws lambda update-function-configuration --function-name Function --environment Variables={OPENTELEMETRY_COLLECTOR_CONFIG_FILE=/var/task/collector.yaml}
+aws lambda update-function-configuration --function-name Function --environment Variables={SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL=YOUR_SUMO_LOGIC_HTTP_TRACES_SOURCE_URL}
 ```
 
 You can configure environment variables via CloudFormation template as well:
@@ -71,7 +70,7 @@ You can configure environment variables via CloudFormation template as well:
       ...
       Environment:
         Variables:
-          OPENTELEMETRY_COLLECTOR_CONFIG_FILE: /var/task/collector.yaml
+          SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL: YOUR_SUMO_LOGIC_HTTP_TRACES_SOURCE_URL
 ```
 
 You can configure arguments passed to the collector command line with the
