@@ -11,6 +11,10 @@ Scripts and files used to build AWS Lambda Layers for running OpenTelemetry on A
 5. Set `SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL` environment variable with [Sumo Logic HTTP Traces URL](https://help.sumologic.com/Traces/HTTP_Traces_Source)
 
 ### Sumo Logic AWS Distro Python Lambda Layers
+Sumo Logic AWS Distro Python lambda layers support:
+* `Python 3.8` and `Python 3.9` runtimes
+*  `x86_64` architecture
+
 |AWS Region|ARN|
 |:-----------|:-------|
 |US East (N.Virginia) us-east-1|arn:aws:lambda:us-east-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1|
