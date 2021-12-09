@@ -5,14 +5,11 @@ receivers:
       http:
 
 exporters:
-  logging:
-    loglevel: debug
+  otlphttp:
+    traces_endpoint: $SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL
 
 service:
   pipelines:
     traces:
       receivers: [otlp]
-      exporters: [logging]
-    metrics:
-      receivers: [otlp]
-      exporters: [logging]
+      exporters: [otlphttp]
