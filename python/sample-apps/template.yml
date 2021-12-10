@@ -12,7 +12,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: lambda_function.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.9
       CodeUri: ./function
       Description: Build OTel Python Lambda Sample from scratch
       MemorySize: 512
@@ -24,10 +24,13 @@ Resources:
         - AmazonS3FullAccess
       Environment:
         Variables:
-          AWS_LAMBDA_EXEC_WRAPPER: /opt/python/otel-instrument
-      Tracing: Active
+          AWS_LAMBDA_EXEC_WRAPPER: /opt/otel-instrument
+          OTEL_RESOURCE_ATTRIBUTES: application=YOUR_APPLICATION_NAME,cloud.account.id=YOUR_CLOUD_ACCOUNT_ID
+          OTEL_SERVICE_NAME: YOUR_SERVICE_NAME
+          OTEL_TRACES_SAMPLER: always_on
+          SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL: HTTP_TRACES_ENDPOINT_URL
       Layers:
-        - !Ref OTelLayer
+        - !FindInMap [RegionLayers, !Ref "AWS::Region", layer]
       Events:
         getEndpoint:
           Type: Api
@@ -35,13 +38,37 @@ Resources:
             RestApiId: !Ref api
             Path: /
             Method: GET
-  OTelLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-      LayerName: opentelemetry-python-38
-      Description: Opentelemetry Python38 layer
-      ContentUri: ./otel
-      CompatibleRuntimes:
-        - python3.8
-    Metadata:
-      BuildMethod: makefile
+Mappings:
+  RegionLayers:
+    ap-northeast-1:
+      layer: "arn:aws:lambda:ap-northeast-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    ap-northeast-2:
+      layer: "arn:aws:lambda:ap-northeast-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    ap-south-1:
+      layer: "arn:aws:lambda:ap-south-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    ap-southeast-1:
+      layer: "arn:aws:lambda:ap-southeast-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    ap-southeast-2:
+      layer: "arn:aws:lambda:ap-southeast-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    ca-central-1:
+      layer: "arn:aws:lambda:ca-central-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    eu-central-1:
+      layer: "arn:aws:lambda:eu-central-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:2"
+    eu-north-1:
+      layer: "arn:aws:lambda:eu-north-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    eu-west-1:
+      layer: "arn:aws:lambda:eu-west-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    eu-west-2:
+      layer: "arn:aws:lambda:eu-west-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    eu-west-3:
+      layer: "arn:aws:lambda:eu-west-3:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    sa-east-1:
+      layer: "	arn:aws:lambda:sa-east-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    us-east-1:
+      layer: "arn:aws:lambda:us-east-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    us-east-2:
+      layer: "arn:aws:lambda:us-east-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:2"
+    us-west-1:
+      layer: "arn:aws:lambda:us-west-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
+    us-west-2:
+      layer: "arn:aws:lambda:us-west-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:1"
