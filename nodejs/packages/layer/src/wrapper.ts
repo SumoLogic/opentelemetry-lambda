@@ -1,3 +1,4 @@
+import { env } from 'process';
 import { NodeTracerConfig, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import {
   BatchSpanProcessor,
@@ -11,6 +12,7 @@ import {
   detectResources,
   envDetector,
   processDetector,
+  Resource,
 } from '@opentelemetry/resources';
 import { AwsInstrumentation } from '@opentelemetry/instrumentation-aws-sdk';
 import {
@@ -79,9 +81,33 @@ registerInstrumentations({
 });
 
 async function initializeProvider() {
-  const resource = await detectResources({
+
+  // setup cloud.account.id and faas.id attributes
+  const AWS = require('aws-sdk');
+  const { promisify } = require('util');
+
+  const sts = new AWS.STS();
+
+  const getCallerIdentity = promisify(sts.getCallerIdentity).bind(sts);
+  const data = await getCallerIdentity({});
+  const cloudAccountId = data.Account;
+
+  const provider = 'aws';
+  const lambdaAwsRegion = env.AWS_REGION;
+  const lambdaFunctionName = env.AWS_LAMBDA_FUNCTION_NAME;
+  const faasId = `arn:${ provider }:lambda:${ lambdaAwsRegion }:${ cloudAccountId }:function:${ lambdaFunctionName }`;
+
+  const additionalResources = new Resource({
+    'cloud.account.id': cloudAccountId,
+    'faas.id': faasId,
+  });
+
+  // Detect Resources
+  const detectedResources = await detectResources({
     detectors: [awsLambdaDetector, envDetector, processDetector],
   });
+
+  const resource = detectedResources.merge(additionalResources);
 
   let config: NodeTracerConfig = {
     resource,
