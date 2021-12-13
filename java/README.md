@@ -2,64 +2,40 @@
 
 Layers for running Java applications on AWS Lambda with OpenTelemetry.
 
-## Provided layers
+### Sumo Logic AWS Distro Python Lambda Layers
 
-Two types of layers are provided
+Sumo Logic AWS Distro Python lambda layers support:
+* `Java8 (Corretto)` and `Java11 (Corretto)` runtimes
+* `x86_64` architecture
 
-### Java agent
-
-The [OpenTelemetry Java Agent](https://github.com/open-telemetry/opentelemetry-java-instrumentation)
-is bundled into the base of the layer and can be loaded into a Lambda function by specifying the
-`AWS_LAMBDA_EXEC_WRAPPER=/opt/otel-handler` in your Lambda configuration. The agent will be automatically
-loaded and instrument your application for all supported libraries.
-
-Note, automatic instrumentation has a notable impact on startup time on AWS Lambda and you will
-generally need to use this along with provisioned concurrency and warmup requests to serve production
-requests without causing timeouts on initial requests while it initializes.
-
-### Wrapper
-[OpenTelemetry Lambda Instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/aws-lambda-1.0/library)
-and [OpenTelemetry SDK](https://github.com/open-telemetry/opentelemetry-java) are bundled into the
-`java/lib` directory to be available on the classpath of the Lambda function. No code change is
-needed to instrument the execution of your function, but you will need to set the `AWS_LAMBDA_EXEC_WRAPPER`
-environment variable pointing to the appropriate wrapper for the type of handler.
-
-- `/opt/otel-handler` - for wrapping regular handlers (implementing RequestHandler)
-- `/opt/otel-proxy-handler` - for wrapping regular handlers (implementing RequestHandler) proxied through API Gateway, enabling HTTP context propagation
-- `/opt/otel-stream-handler` - for wrapping streaming handlers (implementing RequestStreamHandler), enabling HTTP context propagation for HTTP requests
-
-[AWS SDK instrumentation](https://github.com/open-telemetry/opentelemetry-java-instrumentation/tree/main/instrumentation/aws-sdk/aws-sdk-2.2/library) is also
-included and loaded automatically if you use the AWS SDK.
-
-For any other library, such as OkHttp, you will need to include the corresponding library instrumentation
-from the [instrumentation project](https://github.com/open-telemetry/opentelemetry-java-instrumentation) and
-modify your code to initialize it in your function.
+|AWS Region|ARN|
+|:-----------|:-------|
+|US East (N.Virginia) us-east-1|arn:aws:lambda:us-east-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|US East (Ohio) us-east-2|arn:aws:lambda:us-east-2:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:3|
+|US West (N.Carolina) us-west-1|arn:aws:lambda:us-west-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|US West (Oregon) us-west-2|arn:aws:lambda:us-west-2:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Africa (Cape Town) af-south-1|arn:aws:lambda:af-south-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Hong Kong) ap-east-1|arn:aws:lambda:ap-east-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Mumbai) ap-south-1|arn:aws:lambda:ap-south-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Osaka) ap-northeast-3|arn:aws:lambda:ap-northeast-3:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Seoul) ap-northeast-2|arn:aws:lambda:ap-northeast-2:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Singapore) ap-southeast-1|arn:aws:lambda:ap-southeast-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Sydney) ap-southeast-2|arn:aws:lambda:ap-southeast-2:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Asia Pacific (Tokyo) ap-northeast-1|arn:aws:lambda:ap-northeast-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Canada (Central) ca-central-1|arn:aws:lambda:ca-central-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Europe (Frankfurt) eu-central-1|arn:aws:lambda:eu-central-1:663229565520:layer:sumologic-aws-distro-otel-col-python-lambda-layer:5|
+|Europe (Ireland) eu-west-1|arn:aws:lambda:eu-west-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Europe (London) eu-west-2|arn:aws:lambda:eu-west-2:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Europe (Milan) eu-south-1|arn:aws:lambda:eu-south-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Europe (Paris) eu-west-3|arn:aws:lambda:eu-west-3:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Europe (Stockholm) eu-north-1|arn:aws:lambda:eu-north-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|Middle East (Bahrain) me-south-1|arn:aws:lambda:me-south-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
+|South America (Sao Paulo) sa-east-1|arn:aws:lambda:sa-east-1:663229565520:layer:sumologic-aws-distro-otel-col-java-lambda-layer:3|
 
 ## Building
 
-To build the Java Agent layer, run
-
-```
-./gradlew :layer-javaagent:build
-```
-
-The layer zip file will be present at `./layer-javaagent/build/distributions/opentelemetry-javaagent-layer.zip`.
-
-To build the wrapper layer, run
-
-```
-./gradlew :layer-wrapper:build
-```
-
-The layer zip file will be present at `./layer-wrapper/build/distributions/opentelemetry-java-wrapper.zip`.
+// TODO
 
 ## Sample applications
 
-Sample applications are provided to show usage the above layers.
-
-- [Application using AWS SDK](./sample-apps/aws-sdk) - shows how both the wrapper and agent can be used
-with an application using AWS SDK without code change.
-
-- [Application using OkHttp](./sample-apps/okhttp) - shows the manual initialization of OkHttp
-library instrumentation for use with the wrapper. The agent would be usable without such a code change
-at the expense of the cold start overhead it introduces.
+//TODO
