@@ -1,18 +1,20 @@
-name: Pull Request Build - Java
+name: Main Build - Python
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
     paths:
-      - 'java/**'
+      - 'python/**'
 
 jobs:
-  build-java-artifacts:
+  build-python-artifacts:
     runs-on: ubuntu-20.04
     env:
       BUILD_COMMAND: ./build.sh
       PUBLISH_COMMAND: ./publish.sh
-      LANGUAGE: java
-      LAYER_ARCHIVE: layer-wrapper/build/distributions/opentelemetry-java-wrapper.zip
+      LANGUAGE: python
+      LAYER_ARCHIVE: src/build/opentelemetry-python.zip
     name: Build artifacts
     strategy:
       matrix:
@@ -25,20 +27,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: '^1.16'
-      - uses: actions/setup-java@v2
-        with:
-          distribution: adopt
-          java-version: '11'
-      - name: Cache (Java)
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
@@ -46,8 +34,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: |
-            ~/go/pkg/mod
-            ~/.cache/pip
+           ~/go/pkg/mod
+           ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -65,9 +53,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}
+          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main

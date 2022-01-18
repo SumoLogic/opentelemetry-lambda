@@ -1,7 +1,9 @@
-name: Pull Request Build - Java
+name: Main Build - Java
 
 on:
-  pull_request:
+  push:
+    branches:
+      - main
     paths:
       - 'java/**'
 
@@ -65,9 +67,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}
+          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main
