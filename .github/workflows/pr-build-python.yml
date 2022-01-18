@@ -56,4 +56,4 @@ jobs:
       - name: clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://test-ll-${{ matrix.architecture }}
+          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ matrix.architecture }}
