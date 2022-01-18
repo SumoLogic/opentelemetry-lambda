@@ -34,9 +34,9 @@ jobs:
           path: |
            ~/go/pkg/mod
            ~/.cache/pip
-         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
-         restore-keys: |
-           ${{ runner.os }}-pip-
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - name: Build layer - ${{ matrix.architecture }}
         run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
         working-directory: ${{ env.LANGUAGE }}
