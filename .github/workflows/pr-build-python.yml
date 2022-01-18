@@ -13,7 +13,7 @@ jobs:
       PUBLISH_COMMAND: ./publish.sh
       LANGUAGE: python
       LAYER_ARCHIVE: src/build/opentelemetry-python.zip
-    name: Build artifacts - ${{ env.LANGUAGE }}
+    name: Build artifacts
     strategy:
       matrix:
         architecture: [ amd64, arm64 ]
