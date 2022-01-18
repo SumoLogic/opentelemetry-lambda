@@ -49,3 +49,16 @@ aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY}
 # Create Lambda Layer
 echo "Create Lambda Layer..."
 aws lambda publish-layer-version --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --compatible-architectures ${ARCHITECTURE} --description "${DESCRIPTION}" --license-info "${LICENSE}"
+
+# Publish layer
+MAKE_PUBLIC=$6
+
+if [[ $MAKE_PUBLIC == "true" ]];
+then
+  echo "Publishing Lambda Layer ${LAYER_NAME}-${ARCHITECTURE}"
+  LAYER_VERSION=$(aws lambda list-layer-versions --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --query 'max_by(LayerVersions, &Version).Version')
+  echo "Publishing Lambda Layer ${LAYER_NAME}-${ARCHITECTURE} in version ${LAYER_VERSION}"
+  aws lambda add-layer-version-permission --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --version-number "${LAYER_VERSION}" --statement-id allAccountsExample --principal "*" --action lambda:GetLayerVersion
+else
+  echo "Dev build, layer not published."
+fi
