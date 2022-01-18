@@ -3,7 +3,7 @@ name: Pull Request Build - Java
 on:
   pull_request:
     paths:
-        - 'java/**'
+      - 'java/**'
 
 jobs:
   build-java-artifacts:

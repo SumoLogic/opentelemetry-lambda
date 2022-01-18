@@ -3,7 +3,7 @@ name: Pull Request Build - nodejs
 on:
   pull_request:
     paths:
-        - 'nodejs/**'
+      - 'nodejs/**'
 
 jobs:
   build-nodejs-artifacts:

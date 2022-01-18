@@ -3,7 +3,7 @@ name: Pull Request Build - Python
 on:
   pull_request:
     paths:
-        - 'python/**'
+      - 'python/**'
 
 jobs:
   build-python-artifacts:
@@ -28,15 +28,15 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-       - name: Cache (Python)
-         uses: actions/cache@v2
-         with:
-           path: |
-             ~/go/pkg/mod
-             ~/.cache/pip
-           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
-           restore-keys: |
-             ${{ runner.os }}-pip-
+      - name: Cache (Python)
+        uses: actions/cache@v2
+        with:
+          path: |
+           ~/go/pkg/mod
+           ~/.cache/pip
+         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
+         restore-keys: |
+           ${{ runner.os }}-pip-
       - name: Build layer - ${{ matrix.architecture }}
         run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
         working-directory: ${{ env.LANGUAGE }}
