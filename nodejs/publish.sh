@@ -1,11 +1,11 @@
 #!/bin/bash
 
-OFFICIAL_LAYER_NAME="sumologic-aws-distro-otel-col-python-lambda-layer"
+OFFICIAL_LAYER_NAME="sumologic-aws-distro-otel-col-nodejs-lambda-layer"
 ARCHITECTURE_AMD="x86_64"
 ARCHITECTURE_ARM="arm64"
-RUNTIMES="python3.8 python3.9"
-DESCRIPTION="Sumo Logic AWS Distro OTel Collector and Python Lambda Layer
-https://github.com/SumoLogic/opentelemetry-lambda/tree/main/python"
+RUNTIMES="nodejs12.x nodejs14.x"
+DESCRIPTION="Sumo Logic AWS Distro OTel Collector and NodeJS Lambda Layer
+https://github.com/SumoLogic/opentelemetry-lambda/tree/main/nodejs"
 LICENSE="Apache-2.0"
 
 
