@@ -13,20 +13,13 @@ module "hello-lambda-function" {
   memory_size = 384
   timeout     = 20
 
-  layers = compact([
-    var.collector_layer_arn,
-    var.sdk_layer_arn
-  ])
-
   environment_variables = {
     AWS_LAMBDA_EXEC_WRAPPER     = "/opt/otel-handler"
-    OTEL_TRACES_EXPORTER        = "logging"
-    OTEL_METRICS_EXPORTER       = "logging"
-    OTEL_LOG_LEVEL              = "DEBUG"
-    OTEL_EXPORTER_OTLP_ENDPOINT = "http://localhost:55681/v1/traces"
+    OTEL_RESOURCE_ATTRIBUTES    = var.application_name
+    OTEL_SERVICE_NAME           = var.service_name
+    OTEL_TRACES_SAMPLER         = var.traces_sampler
+    SUMOLOGIC_HTTP_TRACES_ENDPOINT_URL = var.sumologic_http_traces_endpoint_url
   }
-
-  tracing_mode = var.tracing_mode
 
   attach_policy_statements = true
   policy_statements = {
@@ -48,6 +41,5 @@ module "api-gateway" {
   name                = var.name
   function_name       = module.hello-lambda-function.lambda_function_name
   function_invoke_arn = module.hello-lambda-function.lambda_function_invoke_arn
-  enable_xray_tracing = var.tracing_mode == "Active"
 }
 
