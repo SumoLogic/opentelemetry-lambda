@@ -53,34 +53,9 @@ declare global {
 
 console.log('Registering OpenTelemetry');
 
-const instrumentations = [
-  new AwsInstrumentation({
-    suppressInternalInstrumentation: true,
-  }),
-  new AwsLambdaInstrumentation(typeof configureLambdaInstrumentation === 'function' ? configureLambdaInstrumentation({}) : {}),
-  new DnsInstrumentation(),
-  new ExpressInstrumentation(),
-  new GraphQLInstrumentation(),
-  new GrpcInstrumentation(),
-  new HapiInstrumentation(),
-  new HttpInstrumentation(),
-  new IORedisInstrumentation(),
-  new KoaInstrumentation(),
-  new MongoDBInstrumentation(),
-  new MySQLInstrumentation(),
-  new NetInstrumentation(),
-  new PgInstrumentation(),
-  new RedisInstrumentation(),
-];
-
 // configure lambda logging
 const logLevel = getEnv().OTEL_LOG_LEVEL
 diag.setLogger(new DiagConsoleLogger(), logLevel)
-
-// Register instrumentations synchronously to ensure code is patched even before provider is ready.
-registerInstrumentations({
-  instrumentations,
-});
 
 async function initializeProvider() {
 
@@ -138,10 +113,27 @@ async function initializeProvider() {
   }
   tracerProvider.register(sdkRegistrationConfig);
 
-  // Re-register instrumentation with initialized provider. Patched code will see the update.
+  // Register instrumentation
   registerInstrumentations({
-    instrumentations,
-    tracerProvider,
+    instrumentations: [
+      new AwsInstrumentation({
+        suppressInternalInstrumentation: true,
+      }),
+      new AwsLambdaInstrumentation(typeof configureLambdaInstrumentation === 'function' ? configureLambdaInstrumentation({}) : {}),
+      new DnsInstrumentation(),
+      new ExpressInstrumentation(),
+      new GraphQLInstrumentation(),
+      new GrpcInstrumentation(),
+      new HapiInstrumentation(),
+      new HttpInstrumentation(),
+      new IORedisInstrumentation(),
+      new KoaInstrumentation(),
+      new MongoDBInstrumentation(),
+      new MySQLInstrumentation(),
+      new NetInstrumentation(),
+      new PgInstrumentation(),
+      new RedisInstrumentation(),
+    ],
   });
 }
 initializeProvider();
