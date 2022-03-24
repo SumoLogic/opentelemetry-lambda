@@ -135,7 +135,7 @@ async function initializeProvider() {
   }
   tracerProvider.register(sdkRegistrationConfig);
 
-  setTracerProvider(tracerProvider);
+  global.setTracerProvider(tracerProvider);
 
   // Register instrumentation
   registerInstrumentations({
