@@ -57,6 +57,29 @@ console.log('Registering OpenTelemetry');
 const logLevel = getEnv().OTEL_LOG_LEVEL
 diag.setLogger(new DiagConsoleLogger(), logLevel)
 
+// Register instrumentation
+registerInstrumentations({
+  instrumentations: [
+    new AwsInstrumentation({
+      suppressInternalInstrumentation: true,
+    }),
+    new AwsLambdaInstrumentation(),
+    new DnsInstrumentation(),
+    new ExpressInstrumentation(),
+    new GraphQLInstrumentation(),
+    new GrpcInstrumentation(),
+    new HapiInstrumentation(),
+    new HttpInstrumentation(),
+    new IORedisInstrumentation(),
+    new KoaInstrumentation(),
+    new MongoDBInstrumentation(),
+    new MySQLInstrumentation(),
+    new NetInstrumentation(),
+    new PgInstrumentation(),
+    new RedisInstrumentation(),
+  ],
+});
+
 async function initializeProvider() {
 
   // setup cloud.account.id and faas.id attributes
@@ -112,28 +135,5 @@ async function initializeProvider() {
     sdkRegistrationConfig = configureSdkRegistration(sdkRegistrationConfig);
   }
   tracerProvider.register(sdkRegistrationConfig);
-
-  // Register instrumentation
-  registerInstrumentations({
-    instrumentations: [
-      new AwsInstrumentation({
-        suppressInternalInstrumentation: true,
-      }),
-      new AwsLambdaInstrumentation(),
-      new DnsInstrumentation(),
-      new ExpressInstrumentation(),
-      new GraphQLInstrumentation(),
-      new GrpcInstrumentation(),
-      new HapiInstrumentation(),
-      new HttpInstrumentation(),
-      new IORedisInstrumentation(),
-      new KoaInstrumentation(),
-      new MongoDBInstrumentation(),
-      new MySQLInstrumentation(),
-      new NetInstrumentation(),
-      new PgInstrumentation(),
-      new RedisInstrumentation(),
-    ],
-  });
 }
 initializeProvider();
