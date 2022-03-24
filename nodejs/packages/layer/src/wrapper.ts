@@ -119,7 +119,7 @@ async function initializeProvider() {
       new AwsInstrumentation({
         suppressInternalInstrumentation: true,
       }),
-      new AwsLambdaInstrumentation(typeof configureLambdaInstrumentation === 'function' ? configureLambdaInstrumentation({}) : {}),
+      new AwsLambdaInstrumentation(),
       new DnsInstrumentation(),
       new ExpressInstrumentation(),
       new GraphQLInstrumentation(),
