@@ -7,7 +7,7 @@ RUNTIMES="python3.8 python3.9"
 DESCRIPTION="Sumo Logic OTel Collector and Python Lambda Layer
 https://github.com/SumoLogic/opentelemetry-lambda/tree/main/python"
 LICENSE="Apache-2.0"
-VERSION="ver-1-9-1"
+VERSION="ver-1-10-0"
 
 # Set architecture
 ARCH=$1
