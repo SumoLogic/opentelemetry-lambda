@@ -5,13 +5,12 @@ plugins {
 dependencies {
     runtimeOnly(project(":awssdk-autoconfigure"))
 
-    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-aws-lambda-events-2.2")
-    runtimeOnly("io.opentelemetry:opentelemetry-exporter-logging")
-    runtimeOnly("io.opentelemetry:opentelemetry-exporter-otlp")
-    runtimeOnly("io.opentelemetry:opentelemetry-exporter-otlp-metrics")
-    runtimeOnly("io.opentelemetry:opentelemetry-extension-trace-propagators")
-    runtimeOnly("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure")
-    runtimeOnly("io.opentelemetry:opentelemetry-sdk-extension-aws")
+    runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-aws-lambda-events-2.2:1.12.1-alpha")
+    runtimeOnly("io.opentelemetry:opentelemetry-exporter-logging:1.12.0")
+    runtimeOnly("io.opentelemetry:opentelemetry-exporter-otlp:1.12.0")
+    runtimeOnly("io.opentelemetry:opentelemetry-extension-trace-propagators:1.12.0")
+    runtimeOnly("io.opentelemetry:opentelemetry-sdk-extension-autoconfigure:1.12.0-alpha")
+    runtimeOnly("io.opentelemetry:opentelemetry-sdk-extension-aws:1.12.0")
 }
 
 tasks {
