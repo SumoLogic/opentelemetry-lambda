@@ -1,13 +1,13 @@
 #!/bin/bash
 
-OFFICIAL_LAYER_NAME="sumologic-aws-distro-otel-col-python-lambda-layer"
+OFFICIAL_LAYER_NAME="sumologic-otel-python"
 ARCHITECTURE_AMD="x86_64"
 ARCHITECTURE_ARM="arm64"
 RUNTIMES="python3.8 python3.9"
-DESCRIPTION="Sumo Logic AWS Distro OTel Collector and Python Lambda Layer
+DESCRIPTION="Sumo Logic OTel Collector and Python Lambda Layer
 https://github.com/SumoLogic/opentelemetry-lambda/tree/main/python"
 LICENSE="Apache-2.0"
-
+VERSION="ver-1-9-1"
 
 # Set architecture
 ARCH=$1
@@ -27,9 +27,9 @@ DEV_LAYER=$2
 
 if [ -z "$DEV_LAYER" ];
 then
-    LAYER_NAME=${OFFICIAL_LAYER_NAME}
+    LAYER_NAME="${OFFICIAL_LAYER_NAME}-${ARCHITECTURE}-${VERSION}"
 else
-    LAYER_NAME=$DEV_LAYER
+    LAYER_NAME="${DEV_LAYER}-${ARCHITECTURE}-${VERSION}"
 fi
 echo "Layer name - ${LAYER_NAME}"
 
@@ -48,17 +48,17 @@ aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY}
 
 # Create Lambda Layer
 echo "Create Lambda Layer..."
-aws lambda publish-layer-version --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --compatible-architectures ${ARCHITECTURE} --description "${DESCRIPTION}" --license-info "${LICENSE}"
+aws lambda publish-layer-version --layer-name "${LAYER_NAME}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --compatible-architectures ${ARCHITECTURE} --description "${DESCRIPTION}" --license-info "${LICENSE}"
 
 # Publish layer
 MAKE_PUBLIC=$6
 
 if [[ $MAKE_PUBLIC == "true" ]];
 then
-  echo "Publishing Lambda Layer ${LAYER_NAME}-${ARCHITECTURE}"
-  LAYER_VERSION=$(aws lambda list-layer-versions --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --query 'max_by(LayerVersions, &Version).Version')
-  echo "Publishing Lambda Layer ${LAYER_NAME}-${ARCHITECTURE} in version ${LAYER_VERSION}"
-  aws lambda add-layer-version-permission --layer-name "${LAYER_NAME}-${ARCHITECTURE}" --version-number "${LAYER_VERSION}" --statement-id allAccountsExample --principal "*" --action lambda:GetLayerVersion
+  echo "Publishing Lambda Layer ${LAYER_NAME}"
+  LAYER_VERSION=$(aws lambda list-layer-versions --layer-name "${LAYER_NAME}" --query 'max_by(LayerVersions, &Version).Version')
+  echo "Publishing Lambda Layer ${LAYER_NAME} in version ${LAYER_VERSION}"
+  aws lambda add-layer-version-permission --layer-name "${LAYER_NAME}" --version-number "${LAYER_VERSION}" --statement-id allAccountsExample --principal "*" --action lambda:GetLayerVersion
 else
   echo "Dev build, layer not published."
 fi
