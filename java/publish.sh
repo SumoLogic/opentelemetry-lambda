@@ -7,7 +7,7 @@ RUNTIMES="java11 java8.al2"
 DESCRIPTION="Sumo Logic OTel Collector and Java Lambda Layer
 https://github.com/SumoLogic/opentelemetry-lambda/tree/main/java"
 LICENSE="Apache-2.0"
-VERSION="ver-1-11-1"
+VERSION="ver-1-12-1"
 
 # Set architecture
 ARCH=$1
