@@ -35,21 +35,24 @@ echo "Layer name - ${LAYER_NAME}"
 
 # Create S3 Bucket
 BUCKET_NAME=$3
+REGION=$7
 echo "Creating bucket - ${BUCKET_NAME}"
 
-aws s3 mb s3://${BUCKET_NAME}
+aws s3 mb s3://${BUCKET_NAME} --region "${REGION}"
 
 # Copying layer archive to S3 bucket
 LAYER_ARCHIVE=$4
 BUCKET_KEY=$5
 echo "Copy layer archive to S3 bucket"
 echo "Bucket key - ${BUCKET_KEY}"
-aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY}
+aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY} --region "${REGION}"
 
+echo $AWS_REGION
 # Create Lambda Layer
 echo "Create Lambda Layer..."
 aws lambda publish-layer-version --layer-name "${LAYER_NAME}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --compatible-architectures ${ARCHITECTURE} --description "${DESCRIPTION}" --license-info "${LICENSE}"
 
+echo $AWS_REGION
 # Publish layer
 MAKE_PUBLIC=$6
 
