@@ -44,15 +44,6 @@ jobs:
       - uses: actions/setup-python@v2
         with:
           python-version: '3.8'
-      - name: Cache (Python)
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
       - name: Build layer - ${{ matrix.architecture }}
         run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
         working-directory: ${{ env.LANGUAGE }}
@@ -67,9 +58,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" "${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-main
+          aws s3 rb --force s3://${{ env.LANGUAGE }}-${{ matrix.architecture }}-main

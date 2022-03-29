@@ -1,4 +1,3 @@
-import { env } from 'process';
 import { NodeTracerConfig, NodeTracerProvider } from '@opentelemetry/sdk-trace-node';
 import {
   BatchSpanProcessor,
@@ -12,7 +11,6 @@ import {
   detectResources,
   envDetector,
   processDetector,
-  Resource,
 } from '@opentelemetry/resources';
 import { AwsInstrumentation } from '@opentelemetry/instrumentation-aws-sdk';
 import {
@@ -21,6 +19,7 @@ import {
   DiagLogLevel,
 } from "@opentelemetry/api";
 import { getEnv } from '@opentelemetry/core';
+import { AwsLambdaInstrumentationConfig } from '@opentelemetry/instrumentation-aws-lambda';
 
 // Use require statements for instrumentation to avoid having to have transitive dependencies on all the typescript
 // definitions.
@@ -38,7 +37,7 @@ const { MySQLInstrumentation } = require('@opentelemetry/instrumentation-mysql')
 const { NetInstrumentation } = require('@opentelemetry/instrumentation-net');
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg');
 const { RedisInstrumentation } = require('@opentelemetry/instrumentation-redis');
-import { OTLPTraceExporter } from '@opentelemetry/exporter-otlp-proto';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-proto';
 
 declare global {
   // in case of downstream configuring span processors etc
@@ -47,6 +46,7 @@ declare global {
   function configureSdkRegistration(
     defaultSdkRegistration: SDKRegistrationConfig
   ): SDKRegistrationConfig;
+  function configureLambdaInstrumentation(config: AwsLambdaInstrumentationConfig): AwsLambdaInstrumentationConfig
 }
 
 console.log('Registering OpenTelemetry');
@@ -55,7 +55,7 @@ const instrumentations = [
   new AwsInstrumentation({
     suppressInternalInstrumentation: true,
   }),
-  new AwsLambdaInstrumentation(),
+  new AwsLambdaInstrumentation(typeof configureLambdaInstrumentation === 'function' ? configureLambdaInstrumentation({}) : {}),
   new DnsInstrumentation(),
   new ExpressInstrumentation(),
   new GraphQLInstrumentation(),
@@ -81,33 +81,9 @@ registerInstrumentations({
 });
 
 async function initializeProvider() {
-
-  // setup cloud.account.id and faas.id attributes
-  const AWS = require('aws-sdk');
-  const { promisify } = require('util');
-
-  const sts = new AWS.STS();
-
-  const getCallerIdentity = promisify(sts.getCallerIdentity).bind(sts);
-  const data = await getCallerIdentity({});
-  const cloudAccountId = data.Account;
-
-  const provider = 'aws';
-  const lambdaAwsRegion = env.AWS_REGION;
-  const lambdaFunctionName = env.AWS_LAMBDA_FUNCTION_NAME;
-  const faasId = `arn:${ provider }:lambda:${ lambdaAwsRegion }:${ cloudAccountId }:function:${ lambdaFunctionName }`;
-
-  const additionalResources = new Resource({
-    'cloud.account.id': cloudAccountId,
-    'faas.id': faasId,
-  });
-
-  // Detect Resources
-  const detectedResources = await detectResources({
+  const resource = await detectResources({
     detectors: [awsLambdaDetector, envDetector, processDetector],
   });
-
-  const resource = detectedResources.merge(additionalResources);
 
   let config: NodeTracerConfig = {
     resource,
