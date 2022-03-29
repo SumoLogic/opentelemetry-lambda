@@ -35,16 +35,17 @@ echo "Layer name - ${LAYER_NAME}"
 
 # Create S3 Bucket
 BUCKET_NAME=$3
+REGION=$7
 echo "Creating bucket - ${BUCKET_NAME}"
 
-aws s3 mb s3://${BUCKET_NAME}
+aws s3 mb s3://${BUCKET_NAME} --region "${REGION}"
 
 # Copying layer archive to S3 bucket
 LAYER_ARCHIVE=$4
 BUCKET_KEY=$5
 echo "Copy layer archive to S3 bucket"
 echo "Bucket key - ${BUCKET_KEY}"
-aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY}
+aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY} --region "${REGION}"
 
 # Create Lambda Layer
 echo "Create Lambda Layer..."

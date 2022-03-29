@@ -17,7 +17,7 @@ jobs:
     strategy:
       matrix:
         architecture: [ amd64, arm64 ]
-        aws_region: [ eu-central-1 ]
+        aws_region: [ eu-central-1, eu-west-1 ]
     steps:
       - uses: actions/checkout@v2
         with:
@@ -51,9 +51,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false"
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false" ${{ matrix.aws_region }}
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}
+          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }} --region ${{ matrix.aws_region }}
