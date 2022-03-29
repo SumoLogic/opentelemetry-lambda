@@ -50,7 +50,7 @@ aws s3 cp ${LAYER_ARCHIVE} s3://${BUCKET_NAME}/${BUCKET_KEY} --region "${REGION}
 
 # Create Lambda Layer
 echo "Create Lambda Layer..."
-aws lambda publish-layer-version --layer-name "${LAYER_NAME}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --compatible-architectures ${ARCHITECTURE} --description "${DESCRIPTION}" --license-info "${LICENSE}"
+aws lambda publish-layer-version --layer-name "${LAYER_NAME}" --content S3Bucket=${BUCKET_NAME},S3Key=${BUCKET_KEY} --compatible-runtimes ${RUNTIMES} --description "${DESCRIPTION}" --license-info "${LICENSE}"
 
 # Publish layer
 MAKE_PUBLIC=$6
