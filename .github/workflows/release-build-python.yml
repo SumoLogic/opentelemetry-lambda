@@ -11,7 +11,8 @@ jobs:
     secrets:
       BUILD_COMMAND: ./build.sh
       LANGUAGE: python
-      ARTIFACT_ARCHIVE: packages/layer/build/opentelemetry-nodejs.zip
+      ARTIFACT_ARCHIVE_DIR: src/build
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-python
 
   create-release-lambda-layer:
     needs: build-artifacts
@@ -20,7 +21,39 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.OSC_AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.OSC_AWS_SECRET_ACCESS_KEY }}
       PUBLISH_COMMAND: ./publish.sh
-      ARTIFACT_ARCHIVE: opentelemetry-python.zip
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-python
       PUBLISH: "true"
       LANGUAGE: python
       LAYER_NAME: ${GITHUB_HEAD_REF}
+
+  create-release:
+    needs: create-release-lambda-layer
+    name: Create Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Extract tag
+        id: extract_tag
+        run: echo "::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/java-v})"
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
+      - uses: ncipollo/release-action@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: true
+
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+
+          body: |
+            ## Sumo Logic OTel Python AWS Lambda Layer version: ${{ steps.extract_tag.outputs.tag }}
+            ### Changelog
+            **TODO**
+            ### AWS Lambda Layers:
+            **TODO**
+          artifacts: "artifacts/*"
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true

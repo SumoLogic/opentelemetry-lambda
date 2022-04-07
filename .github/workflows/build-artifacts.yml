@@ -7,7 +7,9 @@ on:
         required: true
       LANGUAGE:
         required: true
-      ARTIFACT_ARCHIVE:
+      ARTIFACT_ARCHIVE_DIR:
+        required: true
+      ARTIFACT_ARCHIVE_BASE_NAME:
         required: true
 
 
@@ -19,7 +21,8 @@ jobs:
     env:
       BUILD_COMMAND: ${{ secrets.BUILD_COMMAND }}
       LANGUAGE: ${{ secrets.LANGUAGE }}
-      ARTIFACT_ARCHIVE: ${{ secrets.ARTIFACT_ARCHIVE }}
+      ARTIFACT_ARCHIVE_DIR: ${{ secrets.ARTIFACT_ARCHIVE_DIR }}
+      ARTIFACT_ARCHIVE_BASE_NAME: ${{ secrets.ARTIFACT_ARCHIVE_BASE_NAME }}
     name: Build and upload artifacts
     runs-on: ubuntu-20.04
     steps:
@@ -80,20 +83,20 @@ jobs:
         if: env.LANGUAGE == 'python' && success()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
-          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE }}
+          name: ${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
+          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE_DIR }}/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip
           if-no-files-found: error
       - name: Upload artifacts - ${{ env.LANGUAGE }}
         if: env.LANGUAGE == 'nodejs' && success()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
-          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE }}
+          name: ${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
+          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE_DIR }}/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip
           if-no-files-found: error
       - name: Upload artifacts - ${{ env.LANGUAGE }}
         if: env.LANGUAGE == 'java' && success()
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
-          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE }}
+          name: ${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
+          path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE_DIR }}/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip
           if-no-files-found: error
