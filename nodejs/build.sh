@@ -18,4 +18,5 @@ rm ../layer.zip
 
 unzip -qo ../../../../../collector/build/collector-extension.zip
 
-zip -qr ../opentelemetry-nodejs.zip *
+ARCH=$1
+zip -qr ../opentelemetry-nodejs-${ARCH}.zip *

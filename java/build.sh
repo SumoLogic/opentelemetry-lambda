@@ -18,5 +18,7 @@ pushd ./layer-wrapper/build/distributions || exit
 unzip -qo opentelemetry-java-wrapper.zip
 rm opentelemetry-java-wrapper.zip
 unzip -qo ../../../../collector/build/collector-extension.zip
-zip -qr opentelemetry-java-wrapper.zip *
+
+ARCH=$1
+zip -qr opentelemetry-java-wrapper-${ARCH}.zip *
 popd || exit
