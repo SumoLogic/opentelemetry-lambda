@@ -76,22 +76,22 @@ jobs:
       - name: Build artifacts - ${{ matrix.architecture }}
         run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
         working-directory: ${{ env.LANGUAGE }}
-      - name: Upload artifacts ${{ env.LANGUAGE }}
-        if: success() && env.LANGUAGE == 'python'
+      - name: Upload artifacts - ${{ env.LANGUAGE }}
+        if: env.LANGUAGE == 'python' && success()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
       - name: Upload artifacts - ${{ env.LANGUAGE }}
-        if: success() && env.LANGUAGE == 'nodejs'
+        if: env.LANGUAGE == 'nodejs' && success()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ env.LANGUAGE }}/${{ env.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
-      - name: Upload artifacts ${{ env.LANGUAGE }}
-        if: success() && env.LANGUAGE == 'java'
+      - name: Upload artifacts - ${{ env.LANGUAGE }}
+        if: env.LANGUAGE == 'java' && success()
         uses: actions/upload-artifact@v3
         with:
           name: ${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
