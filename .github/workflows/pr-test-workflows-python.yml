@@ -22,5 +22,5 @@ jobs:
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       PUBLISH_COMMAND: ./publish.sh
       ARTIFACT_ARCHIVE: src/build/opentelemetry-python.zip
-      PUBLISH: false
+      PUBLISH: "false"
       LANGUAGE: python
