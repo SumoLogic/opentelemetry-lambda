@@ -1,4 +1,4 @@
-name: Main Build - nodejs
+name: Main Build - NodeJS
 
 on:
   push:
