@@ -8,30 +8,19 @@ on:
 
 jobs:
   build-artifacts:
-    env:
-      BUILD_COMMAND: ./build.sh
-      LANGUAGE: python
-      ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
     uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
     secrets:
-      BUILD_COMMAND: ${{ env.BUILD_COMMAND }}
-      LANGUAGE: ${{ env.LANGUAGE }}
-      ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
+      BUILD_COMMAND: ./build.sh
+      LANGUAGE: python
+      ARTIFACT_ARCHIVE: src/build/opentelemetry-python.zip
 
   create-lambda-layer:
-    env:
-      BUILD_COMMAND: ./build.sh
-      PUBLISH_COMMAND: ./publish.sh
-      LANGUAGE: python
-      ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
-      PUBLISH: false
     needs: build-artifacts
-    uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
+    uses: ./.github/workflows/build-artifacts.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      PUBLISH_COMMAND: ${{ env.PUBLISH_COMMAND }}
-      ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
-      PUBLISH: ${{ env.PUBLISH }}
-      LANGUAGE: ${{ env.LANGUAGE }}
-
+      PUBLISH_COMMAND: ./publish.sh
+      ARTIFACT_ARCHIVE: src/build/opentelemetry-python.zip
+      PUBLISH: false
+      LANGUAGE: python
