@@ -77,7 +77,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
       - name: Build artifacts - ${{ matrix.architecture }}
-        run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
+        run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }} ${{ matrix.architecture }}
         working-directory: ${{ env.LANGUAGE }}
       - name: Upload artifacts - ${{ env.LANGUAGE }}
         if: env.LANGUAGE == 'python' && success()
