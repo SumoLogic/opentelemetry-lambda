@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - 'python/**'
-      - '\.github\/workflows\/[a-zA-Z].*-python\.yml'
+      - '.github/workflows/*-python.yml'
 
 env:
   BUILD_COMMAND: ./build.sh
