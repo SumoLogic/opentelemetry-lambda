@@ -2,10 +2,6 @@ name: Build and upload artifacts
 
 on:
   workflow_call:
-    inputs:
-      architecture:
-        required: true
-        type: string
     secrets:
       BUILD_COMMAND:
         required: true
@@ -17,6 +13,9 @@ on:
 
 jobs:
   build-and-upload-artifacts:
+    strategy:
+      matrix:
+        architecture: [ amd64, arm64 ]
     name: Build and upload artifacts
     runs-on: ubuntu-20.04
     steps:
@@ -70,27 +69,27 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Build artifacts - ${{ architecture }}
-        run: GOARCH=${{ architecture }} ${{ secrets.BUILD_COMMAND }}
+      - name: Build artifacts - ${{ matrix.architecture }}
+        run: GOARCH=${{ matrix.architecture }} ${{ secrets.BUILD_COMMAND }}
         working-directory: ${{ secrets.LANGUAGE }}
       - name: Upload artifacts ${{ secrets.LANGUAGE }}
         if: success() && secrets.LANGUAGE == 'python'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ secrets.LANGUAGE }}-${{ architecture }}-artifacts
+          name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ secrets.LANGUAGE }}/${{ secrets.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
       - name: Upload artifacts - ${{ secrets.LANGUAGE }}
         if: success() && secrets.LANGUAGE == 'nodejs'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ secrets.LANGUAGE }}-${{ architecture }}-artifacts
+          name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ secrets.LANGUAGE }}/${{ secrets.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
       - name: Upload artifacts ${{ secrets.LANGUAGE }}
         if: success() && secrets.LANGUAGE == 'java'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ secrets.LANGUAGE }}-${{ architecture }}-artifacts
+          name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ secrets.LANGUAGE }}/${{ secrets.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
