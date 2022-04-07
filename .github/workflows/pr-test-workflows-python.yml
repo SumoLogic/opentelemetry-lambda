@@ -16,7 +16,7 @@ jobs:
 
   create-lambda-layer:
     needs: build-artifacts
-    uses: ./.github/workflows/build-artifacts.yml
+    uses: ./.github/workflows/publish-lambda-layer.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
