@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-artifacts:
-    uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
+    uses: ./.github/workflows/build-artifacts.yml
     secrets:
       BUILD_COMMAND: ./build.sh
       LANGUAGE: python
