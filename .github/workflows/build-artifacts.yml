@@ -26,12 +26,12 @@ jobs:
         with:
           go-version: '^1.17'
       - uses: actions/setup-java@v2
-        if: secrets.LANGUAGE == 'java'
+        if: ${{ secrets.LANGUAGE }} == 'java'
         with:
           distribution: adopt
           java-version: '11'
       - name: Cache (Java)
-        if: secrets.LANGUAGE == 'java'
+        if: ${{ secrets.LANGUAGE }} == 'java'
         uses: actions/cache@v2
         with:
           path: |
@@ -42,11 +42,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
       - uses: actions/setup-node@v2
-        if: secrets.LANGUAGE == 'nodejs'
+        if: ${{ secrets.LANGUAGE }} == 'nodejs'
         with:
           node-version: '14'
       - name: Cache (NodeJS)
-        if: secrets.LANGUAGE == 'nodejs'
+        if: ${{ secrets.LANGUAGE }} == 'nodejs'
         uses: actions/cache@v2
         with:
           path: |
@@ -56,11 +56,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - uses: actions/setup-python@v2
-        if: secrets.LANGUAGE == 'python'
+        if: ${{ secrets.LANGUAGE }} == 'python'
         with:
           python-version: '3.8'
       - name: Cache (Python)
-        if: secrets.LANGUAGE == 'python'
+        if: ${{ secrets.LANGUAGE }} == 'python'
         uses: actions/cache@v2
         with:
           path: |
@@ -73,21 +73,21 @@ jobs:
         run: GOARCH=${{ matrix.architecture }} ${{ secrets.BUILD_COMMAND }}
         working-directory: ${{ secrets.LANGUAGE }}
       - name: Upload artifacts ${{ secrets.LANGUAGE }}
-        if: success() && secrets.LANGUAGE == 'python'
+        if: success() && ${{ secrets.LANGUAGE }} == 'python'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ secrets.LANGUAGE }}/${{ secrets.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
       - name: Upload artifacts - ${{ secrets.LANGUAGE }}
-        if: success() && secrets.LANGUAGE == 'nodejs'
+        if: success() && ${{ secrets.LANGUAGE }} == 'nodejs'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
           path: ${{ secrets.LANGUAGE }}/${{ secrets.ARTIFACT_ARCHIVE }}
           if-no-files-found: error
       - name: Upload artifacts ${{ secrets.LANGUAGE }}
-        if: success() && secrets.LANGUAGE == 'java'
+        if: success() && ${{ secrets.LANGUAGE }} == 'java'
         uses: actions/upload-artifact@v3
         with:
           name: ${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-artifacts
