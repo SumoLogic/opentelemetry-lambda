@@ -9,8 +9,6 @@ on:
         required: true
       PUBLISH_COMMAND:
         required: true
-      ARTIFACT_ARCHIVE:
-        required: true
       PUBLISH:
         required: true
       LANGUAGE:
@@ -53,7 +51,6 @@ jobs:
             architecture: arm64
     env:
       PUBLISH_COMMAND: ${{ secrets.PUBLISH_COMMAND }}
-      ARTIFACT_ARCHIVE: ${{ secrets.ARTIFACT_ARCHIVE }}
       PUBLISH: ${{ secrets.PUBLISH }}
       LANGUAGE: ${{ secrets.LANGUAGE }}
       LAYER_NAME: ${{ secrets.LAYER_NAME }}
