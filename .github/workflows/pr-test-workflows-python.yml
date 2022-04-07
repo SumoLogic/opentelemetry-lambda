@@ -15,7 +15,6 @@ env:
 
 jobs:
   build-artifacts:
-    runs-on: ubuntu-20.04
     uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
     secrets:
       BUILD_COMMAND: ${{ env.BUILD_COMMAND }}
@@ -23,15 +22,8 @@ jobs:
       ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
 
   create-lambda-layer:
-    runs-on: ubuntu-20.04
     needs: build-artifacts
-    strategy:
-      matrix:
-        architecture: [ amd64, arm64 ]
     uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
-    with:
-      architecture: ${{ matrix.architecture }}
-      aws_region: ${{ matrix.aws_region }}
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
