@@ -13,32 +13,35 @@ env:
   ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
   PUBLISH: false
 
-strategy:
-  matrix:
-    architecture: [ amd64, arm64 ]
-    aws_region: [ eu-central-1, eu-west-1 ]
-
 jobs:
   build-python-artifacts:
-    uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
-    with:
-      architecture: ${{ strategy.matrix.architecture }}
-    secrets:
-      BUILD_COMMAND: ${{ env.BUILD_COMMAND }}
-      LANGUAGE: ${{ env.LANGUAGE }}
-      ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
+    strategy:
+      matrix:
+        architecture: [ amd64, arm64 ]
+    steps:
+      - uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
+        with:
+          architecture: ${{ strategy.matrix.architecture }}
+        secrets:
+          BUILD_COMMAND: ${{ env.BUILD_COMMAND }}
+          LANGUAGE: ${{ env.LANGUAGE }}
+          ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
 
   create-lambda-layer:
-    uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
+    strategy:
+      matrix:
+        architecture: [ amd64, arm64 ]
     needs: build-python-artifacts
-    with:
-      architecture: ${{ strategy.matrix.architecture }}
-      aws_region: ${{ strategy.matrix.aws_region }}
-    secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      PUBLISH_COMMAND: ${{ env.PUBLISH_COMMAND }}
-      ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
-      PUBLISH: ${{ env.PUBLISH }}
-      LANGUAGE: ${{ env.LANGUAGE }}
+    steps:
+      - uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
+        with:
+          architecture: ${{ strategy.matrix.architecture }}
+          aws_region: ${{ strategy.matrix.aws_region }}
+        secrets:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          PUBLISH_COMMAND: ${{ env.PUBLISH_COMMAND }}
+          ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
+          PUBLISH: ${{ env.PUBLISH }}
+          LANGUAGE: ${{ env.LANGUAGE }}
 
