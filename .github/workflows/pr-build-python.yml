@@ -53,6 +53,18 @@ jobs:
       - name: Create Lambda Layer - ${{ matrix.architecture }}
         run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false" ${{ matrix.aws_region }}
         working-directory: ${{ env.LANGUAGE }}
+      - name: Upload artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: python-instrumentation-artifacts
+          path: |
+            python/src/build/collector-config
+            python/src/build/extensions
+            python/src/build/python
+            python/src/build/otel-instrument
+            python/src/build/opentelemetry-python.zip
+          if-no-files-found: error
       - name: Clean s3
         if: always()
         run: |
