@@ -6,15 +6,12 @@ on:
       - 'python/**'
       - '.github/workflows/*-python.yml'
 
-env:
-  BUILD_COMMAND: ./build.sh
-  PUBLISH_COMMAND: ./publish.sh
-  LANGUAGE: python
-  ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
-  PUBLISH: false
-
 jobs:
   build-artifacts:
+    env:
+      BUILD_COMMAND: ./build.sh
+      LANGUAGE: python
+      ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
     uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
     secrets:
       BUILD_COMMAND: ${{ env.BUILD_COMMAND }}
@@ -22,6 +19,12 @@ jobs:
       ARTIFACT_ARCHIVE: ${{ env.ARTIFACT_LOCATION }}
 
   create-lambda-layer:
+    env:
+      BUILD_COMMAND: ./build.sh
+      PUBLISH_COMMAND: ./publish.sh
+      LANGUAGE: python
+      ARTIFACT_LOCATION: src/build/opentelemetry-python.zip
+      PUBLISH: false
     needs: build-artifacts
     uses: Sumologic/opentelemetry-lambda/.github/workflows/build-artifacts.yml@main
     secrets:
