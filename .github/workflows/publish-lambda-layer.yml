@@ -15,6 +15,8 @@ on:
         required: true
       LANGUAGE:
         required: true
+      LAYER_NAME:
+        required: true
 
 
 jobs:
@@ -30,6 +32,7 @@ jobs:
       ARTIFACT_ARCHIVE: ${{ secrets.ARTIFACT_ARCHIVE }}
       PUBLISH: ${{ secrets.PUBLISH }}
       LANGUAGE: ${{ secrets.LANGUAGE }}
+      LAYER_NAME: ${{ secrets.LAYER_NAME }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -53,7 +56,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}" ~/artifact/${{ env.ARTIFACT_ARCHIVE }} layer-${{ matrix.architecture }}.zip ${{ env.PUBLISH }} ${{ matrix.aws_region }}
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}" "${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}" ~/artifact/${{ env.ARTIFACT_ARCHIVE }} layer-${{ matrix.architecture }}.zip ${{ env.PUBLISH }} ${{ matrix.aws_region }}
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
