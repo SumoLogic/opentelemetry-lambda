@@ -6,78 +6,54 @@ on:
       - 'python-v[0-9]+.[0-9]+.[0-9]+'
 
 jobs:
-  build-python-artifacts:
-    runs-on: ubuntu-20.04
-    env:
+  build-release-artifacts:
+    uses: ./.github/workflows/build-artifacts.yml
+    secrets:
       BUILD_COMMAND: ./build.sh
-      PUBLISH_COMMAND: ./publish.sh
       LANGUAGE: python
-      LAYER_ARCHIVE: src/build/opentelemetry-python.zip
-    name: Build artifacts
-    strategy:
-      matrix:
-        architecture: [ amd64, arm64 ]
-        aws_region: [ us-east-1, us-east-2, us-west-1, us-west-2, af-south-1, ap-east-1, ap-south-1, ap-northeast-3,
-                      ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, ca-central-1, eu-central-1,
-                      eu-west-1, eu-west-2, eu-south-1, eu-west-3, eu-north-1, me-south-1, sa-east-1 ]
-        exclude:
-          - aws_region: ap-northeast-2
-            architecture: arm64
-          - aws_region: af-south-1
-            architecture: arm64
-          - aws_region: ca-central-1
-            architecture: arm64
-          - aws_region: eu-north-1
-            architecture: arm64
-          - aws_region: eu-west-3
-            architecture: arm64
-          - aws_region: sa-east-1
-            architecture: arm64
-          - aws_region: us-west-1
-            architecture: arm64
-          - aws_region: ap-east-1
-            architecture: arm64
-          - aws_region: eu-south-1
-            architecture: arm64
-          - aws_region: me-south-1
-            architecture: arm64
+      ARTIFACT_ARCHIVE_DIR: src/build
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-python
+
+  create-release-lambda-layer:
+    needs: build-artifacts
+    uses: ./.github/workflows/publish-release-lambda-layer.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.OSC_AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.OSC_AWS_SECRET_ACCESS_KEY }}
+      PUBLISH_COMMAND: ./publish.sh
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-python
+      PUBLISH: "true"
+      LANGUAGE: python
+      LAYER_NAME: ${GITHUB_HEAD_REF}
+
+  create-release:
+    needs: create-release-lambda-layer
+    name: Create Release
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - name: Extract tag
+        id: extract_tag
+        run: echo "::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/java-v})"
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
         with:
-          submodules: true
-      - uses: actions/setup-go@v2
+          path: artifacts/
+      - uses: ncipollo/release-action@v1
         with:
-          go-version: '^1.16'
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-      - name: Cache (Python)
-        uses: actions/cache@v2
-        with:
-          path: |
-           ~/go/pkg/mod
-           ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-      - name: Build layer - ${{ matrix.architecture }}
-        run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
-        working-directory: ${{ env.LANGUAGE }}
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-            aws-access-key-id: ${{ secrets.OSC_AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.OSC_AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ matrix.aws_region }}
-            mask-aws-account-id: false
-      - name: Install AWS CLI
-        run: |
-          python -m pip install --upgrade pip
-          pip install awscli
-      - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "" "${GITHUB_REF_NAME}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-release" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "true" ${{ matrix.aws_region }}
-        working-directory: ${{ env.LANGUAGE }}
-      - name: Clean s3
-        if: always()
-        run: |
-          aws s3 rb --force s3://${GITHUB_REF_NAME}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-release
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: false
+          prerelease: true
+
+          allowUpdates: true
+          omitBodyDuringUpdate: true
+          omitNameDuringUpdate: true
+
+          body: |
+            ## Sumo Logic OTel Python AWS Lambda Layer version: ${{ steps.extract_tag.outputs.tag }}
+            ### Changelog
+            **TODO**
+            ### AWS Lambda Layers:
+            **TODO**
+          artifacts: "artifacts/*"
+          artifactErrorsFailBuild: true
+          replacesArtifacts: true

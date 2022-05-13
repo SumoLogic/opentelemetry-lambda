@@ -8,59 +8,22 @@ on:
       - 'java/**'
 
 jobs:
-  build-java-artifacts:
-    runs-on: ubuntu-20.04
-    env:
+  build-artifacts:
+    uses: ./.github/workflows/build-artifacts.yml
+    secrets:
       BUILD_COMMAND: ./build.sh
-      PUBLISH_COMMAND: ./publish.sh
       LANGUAGE: java
-      LAYER_ARCHIVE: layer-wrapper/build/distributions/opentelemetry-java-wrapper.zip
-    name: Build artifacts
-    strategy:
-      matrix:
-        architecture: [ amd64, arm64 ]
-        aws_region: [ eu-central-1 ]
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: true
-      - uses: actions/setup-go@v2
-        with:
-          go-version: '^1.16'
-      - uses: actions/setup-java@v2
-        with:
-          distribution: adopt
-          java-version: '11'
-      - name: Cache (Java)
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-      - uses: actions/setup-python@v2
-        with:
-          python-version: '3.8'
-      - name: Build layer - ${{ matrix.architecture }}
-        run: GOARCH=${{ matrix.architecture }} ${{ env.BUILD_COMMAND }}
-        working-directory: ${{ env.LANGUAGE }}
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-            aws-region: ${{ matrix.aws_region }}
-      - name: Install AWS CLI
-        run: |
-          python -m pip install --upgrade pip
-          pip install awscli
-      - name: Create Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "${{ env.LANGUAGE }}-${{ matrix.architecture }}-main" "${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-main" ${{ env.LAYER_ARCHIVE }} layer-${{ matrix.architecture }}.zip "false" ${{ matrix.aws_region }}
-        working-directory: ${{ env.LANGUAGE }}
-      - name: Clean s3
-        if: always()
-        run: |
-          aws s3 rb --force s3://${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-main
+      ARTIFACT_ARCHIVE_DIR: layer-wrapper/build/distributions
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-java-wrapper
+
+  create-lambda-layer:
+    needs: build-artifacts
+    uses: ./.github/workflows/publish-lambda-layer.yml
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      PUBLISH_COMMAND: ./publish.sh
+      ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-java-wrapper
+      PUBLISH: "false"
+      LANGUAGE: java
+      LAYER_NAME: main

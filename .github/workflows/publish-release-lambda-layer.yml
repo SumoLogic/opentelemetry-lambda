@@ -1,0 +1,87 @@
+name: Create Public Lambda Layer
+
+on:
+  workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      PUBLISH_COMMAND:
+        required: true
+      PUBLISH:
+        required: true
+      LANGUAGE:
+        required: true
+      LAYER_NAME:
+        required: true
+      ARTIFACT_ARCHIVE_BASE_NAME:
+        required: true
+
+jobs:
+  create-public-lambda-layer:
+    name: Create Public Lambda Layer
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        architecture: [ amd64, arm64 ]
+        aws_region: [ us-east-1, us-east-2, us-west-1, us-west-2, af-south-1, ap-east-1, ap-south-1, ap-northeast-3,
+                      ap-northeast-2, ap-southeast-1, ap-southeast-2, ap-northeast-1, ca-central-1, eu-central-1,
+                      eu-west-1, eu-west-2, eu-south-1, eu-west-3, eu-north-1, me-south-1, sa-east-1 ]
+        exclude:
+          - aws_region: ap-northeast-2
+            architecture: arm64
+          - aws_region: af-south-1
+            architecture: arm64
+          - aws_region: ca-central-1
+            architecture: arm64
+          - aws_region: eu-north-1
+            architecture: arm64
+          - aws_region: eu-west-3
+            architecture: arm64
+          - aws_region: sa-east-1
+            architecture: arm64
+          - aws_region: us-west-1
+            architecture: arm64
+          - aws_region: ap-east-1
+            architecture: arm64
+          - aws_region: eu-south-1
+            architecture: arm64
+          - aws_region: me-south-1
+            architecture: arm64
+    env:
+      PUBLISH_COMMAND: ${{ secrets.PUBLISH_COMMAND }}
+      PUBLISH: ${{ secrets.PUBLISH }}
+      LANGUAGE: ${{ secrets.LANGUAGE }}
+      LAYER_NAME: ${{ secrets.LAYER_NAME }}
+      ARTIFACT_ARCHIVE_BASE_NAME: ${{ secrets.ARTIFACT_ARCHIVE_BASE_NAME }}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-artifacts
+          path: ~/artifact
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ matrix.aws_region }}
+            mask-aws-account-id: false
+      - name: Install AWS CLI
+        run: |
+          python -m pip install --upgrade pip
+          pip install awscli
+      - name: Create Public Lambda Layer - ${{ matrix.architecture }}
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "" "${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}" ~/artifact/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip layer-${{ matrix.architecture }}.zip ${{ env.PUBLISH }} ${{ matrix.aws_region }}
+        working-directory: ${{ env.LANGUAGE }}
+      - name: Clean s3
+        if: always()
+        run: |
+          aws s3 rb --force s3://${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }} --region ${{ matrix.aws_region }}

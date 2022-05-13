@@ -21,4 +21,5 @@ rm layer.zip
 
 unzip -qo ../../../collector/build/collector-extension.zip
 
-zip -qr opentelemetry-python.zip *
+ARCH=$1
+zip -qr opentelemetry-python-${ARCH}.zip *
