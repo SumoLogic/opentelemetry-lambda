@@ -40,6 +40,9 @@ echo "Creating bucket - ${BUCKET_NAME}"
 
 aws s3 mb s3://${BUCKET_NAME} --region "${REGION}"
 
+echo "Wait for bucket..."
+aws s3api wait bucket-exists --bucket ${BUCKET_NAME}
+
 # Copying layer archive to S3 bucket
 LAYER_ARCHIVE=$4
 BUCKET_KEY=$5
