@@ -25,7 +25,7 @@ jobs:
     strategy:
       matrix:
         architecture: [ amd64, arm64 ]
-        aws_region: [ eu-central-1, eu-west-1 ]
+        aws_region: [ eu-central-1, eu-west-1 , us-west-2]
     env:
       PUBLISH_COMMAND: ${{ secrets.PUBLISH_COMMAND }}
       PUBLISH: ${{ secrets.PUBLISH }}
