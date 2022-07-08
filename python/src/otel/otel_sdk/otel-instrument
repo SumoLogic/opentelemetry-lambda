@@ -93,10 +93,21 @@ if [ -z ${OTEL_TRACES_EXPORTER} ]; then
     export OTEL_TRACES_EXPORTER=otlp_proto_http;
 fi
 
+# - Set the metric exporter
+
+if [ -z ${OTEL_METRICS_EXPORTER} ]; then
+    export OTEL_METRICS_EXPORTER=none;
+fi
+
 # - Set the service name
 
 if [ -z ${OTEL_SERVICE_NAME} ]; then
     export OTEL_SERVICE_NAME=$AWS_LAMBDA_FUNCTION_NAME;
+fi
+
+# - Set OTEL Instr AWS Lamda Flush Timeout
+if [ -z ${OTEL_INSTRUMENTATION_AWS_LAMBDA_FLUSH_TIMEOUT} ]; then
+    export OTEL_INSTRUMENTATION_AWS_LAMBDA_FLUSH_TIMEOUT=10000;
 fi
 
 # - Set the Resource Detectors (Resource Attributes)
