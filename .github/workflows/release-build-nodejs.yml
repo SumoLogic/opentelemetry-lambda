@@ -24,7 +24,7 @@ jobs:
       ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-nodejs
       PUBLISH: "true"
       LANGUAGE: nodejs
-      LAYER_NAME: ${GITHUB_HEAD_REF}
+      LAYER_NAME: ${{ github.ref_name }}
 
   create-release:
     needs: create-release-lambda-layer
@@ -33,7 +33,7 @@ jobs:
     steps:
       - name: Extract tag
         id: extract_tag
-        run: echo "::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/java-v})"
+        run: echo "::set-output name=tag::$(echo ${GITHUB_REF#refs/tags/nodejs-v})"
       - name: Download artifacts
         uses: actions/download-artifact@v3
         with:
