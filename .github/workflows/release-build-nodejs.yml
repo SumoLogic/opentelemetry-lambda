@@ -27,7 +27,7 @@ jobs:
       LAYER_NAME: ${GITHUB_HEAD_REF}
 
   create-release:
-    needs: create-release-lambda-layer
+    needs: create-public-lambda-layer
     name: Create Release
     runs-on: ubuntu-20.04
     steps:

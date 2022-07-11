@@ -60,4 +60,4 @@ jobs:
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${GITHUB_HEAD_REF}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-${{ github.run_id }}
+          aws s3 rb --force s3://${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-${{ github.run_id }}
