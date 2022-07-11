@@ -15,7 +15,7 @@ jobs:
       ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-nodejs
 
   create-release-lambda-layer:
-    needs: build-artifacts
+    needs: build-release-artifacts
     uses: ./.github/workflows/publish-release-lambda-layer.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.OSC_AWS_ACCESS_KEY_ID }}
