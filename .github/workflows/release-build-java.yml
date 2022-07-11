@@ -15,7 +15,7 @@ jobs:
       ARTIFACT_ARCHIVE_BASE_NAME: opentelemetry-java-wrapper
 
   create-release-lambda-layer:
-    needs: build-artifacts
+    needs: build-release-artifacts
     uses: ./.github/workflows/publish-release-lambda-layer.yml
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.OSC_AWS_ACCESS_KEY_ID }}
@@ -27,7 +27,7 @@ jobs:
       LAYER_NAME: ${GITHUB_HEAD_REF}
 
   create-release:
-    needs: create-public-lambda-layer
+    needs: create-release-lambda-layer
     name: Create Release
     runs-on: ubuntu-20.04
     steps:
