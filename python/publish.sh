@@ -7,7 +7,7 @@ RUNTIMES="python3.8 python3.9"
 DESCRIPTION="Sumo Logic OTel Collector and Python Lambda Layer
 https://github.com/SumoLogic/opentelemetry-lambda/tree/main/python"
 LICENSE="Apache-2.0"
-VERSION="ver-1-10-0"
+VERSION="ver-1-11-1"
 
 # Set architecture
 ARCH=$1
@@ -38,7 +38,7 @@ BUCKET_NAME=$3
 REGION=$7
 echo "Creating bucket - ${BUCKET_NAME}"
 
-aws s3 mb s3://${BUCKET_NAME} --region "${REGION}"
+aws s3 ls s3://${BUCKET_NAME} || aws s3 mb s3://${BUCKET_NAME} || aws s3api wait bucket-exists --bucket ${BUCKET_NAME}
 
 # Copying layer archive to S3 bucket
 LAYER_ARCHIVE=$4
