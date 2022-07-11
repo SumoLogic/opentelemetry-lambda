@@ -55,6 +55,7 @@ jobs:
       LANGUAGE: ${{ secrets.LANGUAGE }}
       LAYER_NAME: ${{ secrets.LAYER_NAME }}
       ARTIFACT_ARCHIVE_BASE_NAME: ${{ secrets.ARTIFACT_ARCHIVE_BASE_NAME }}
+      BUCKET_NAME: ${{ secrets.LAYER_NAME }}-${{ secrets.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-${{ github.run_id }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -79,9 +80,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install awscli
       - name: Create Public Lambda Layer - ${{ matrix.architecture }}
-        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "" "${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-${{ github.run_id }}" ~/artifact/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip layer-${{ matrix.architecture }}.zip ${{ env.PUBLISH }} ${{ matrix.aws_region }}
+        run: ${{ env.PUBLISH_COMMAND }} ${{ matrix.architecture }} "" "${{ env.BUCKET_NAME }}" ~/artifact/${{ env.ARTIFACT_ARCHIVE_BASE_NAME }}-${{ matrix.architecture }}.zip layer-${{ matrix.architecture }}.zip ${{ env.PUBLISH }} ${{ matrix.aws_region }}
         working-directory: ${{ env.LANGUAGE }}
       - name: Clean s3
         if: always()
         run: |
-          aws s3 rb --force s3://${{ env.LAYER_NAME }}-${{ env.LANGUAGE }}-${{ matrix.architecture }}-${{ matrix.aws_region }}-${{ github.run_id }}
+          aws s3 rm s3://${{ env.BUCKET_NAME }} --recursive
+          aws s3 rb --force s3://${{ env.BUCKET_NAME }}
